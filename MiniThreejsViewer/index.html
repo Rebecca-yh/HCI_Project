@@ -1,0 +1,160 @@
+<html>
+<head>
+<title>Mini Three.js Scene Viewer</title>
+<script src="../build/three.js"></script>
+
+    <style>
+body {
+    margin: 0px;
+    background-color: #000000;
+    overflow: hidden;
+}
+</style>
+    <script src="../js/controls/MyControls.js"></script>
+</head>
+<body>
+<script>
+
+// global variables
+var camera, scene, renderer,background;
+var controls;
+var objects = [];
+var clock = new THREE.Clock();
+var keyboard;
+
+
+
+function findByUserData(node, key, value) {
+    if(node.userData && node.userData[key] == value) {
+        return node;
+    }
+    for(var i = 0 ; i < node.children.length ; i++) {
+        var child = node.children[i];
+        var found = findByUserData(child, key, value);
+        if(found != null) {
+            return found;
+        }
+    }
+    return undefined;
+}
+
+function setupScene(result) {
+    background = result;
+    // find main camera by tag
+    camera = findByUserData(background, "tag", "MainCamera");
+    //calculate aspect. use window size.
+    var winsize = renderer.getSize();
+    camera.aspect = winsize.width / winsize.height;
+    camera.updateProjectionMatrix();
+    //camera = new THREE.PerspectiveCamera( 60, winsize.width / winsize.height, 1, 10000 );
+    controls = new THREE.MyControls( camera );
+    controls.movementSpeed = 10;
+    controls.lookSpeed = 0.1;
+    scene.add(background)
+}
+
+
+function init() {	
+    // three.js renderer
+	var container = document.body;
+    renderer = new THREE.WebGLRenderer( { antialias: true } );
+    renderer.setClearColor( 0x333333 );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setPixelRatio( window.devicePixelRatio );
+    container.appendChild( renderer.domElement );
+    scene = new THREE.Scene();
+    // Load scene - Begin
+    var loader = new THREE.ObjectLoader();
+	// TODO : input yout exported json file
+    var url = './scene.json';
+    loader.load(url, function(obj) {
+        setupScene(obj);
+    });
+
+	// Load scene - End
+
+
+
+    //射线
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+
+    document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+
+    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
+    addObjects();
+}
+function addObjects()
+{
+    // add
+
+    var geometry = new THREE.BoxGeometry( 3, 1, 1 );
+    keyboard = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, opacity: 1 ,transparent: true,wireframe:true} ) );
+    keyboard.position.x = -6.7;
+    keyboard.position.y = 1;
+    keyboard.position.z = -27.5;
+
+
+
+    scene.add( keyboard );
+
+    objects.push( keyboard );
+}
+
+function onDocumentTouchStart( event ) {
+
+    event.preventDefault();
+
+    event.clientX = event.touches[ 0 ].clientX;
+    event.clientY = event.touches[ 0 ].clientY;
+    onDocumentMouseDown( event );
+
+}
+function onDocumentMouseDown( event ) {
+
+    event.preventDefault();
+
+    mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+    mouse.y = -( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    var intersects = raycaster.intersectObjects(objects);
+
+    if (intersects.length <= 0) {
+    } else {
+
+        console.log(intersects[0].object.position.x);
+        console.log(intersects[0].object.position.y);
+        console.log(intersects[0].object.position.z);
+        if ( intersects[ 0 ].object.position === keyboard.position ) {
+         window.open( 'https://detail.tmall.com/item.htm?spm=a230r.1.14.107.c7c74884zKZ5k2&id=43855471200&ns=1&abbucket=8' );
+         }
+
+        //var particle = new THREE.Sprite( particleMaterial );
+        //particle.position.copy( intersects[ 0 ].point );
+        //particle.scale.x = particle.scale.y = 16;
+        //scene.add( particle );
+
+    }
+}
+
+
+function animate() {
+
+
+    if(scene && camera) {
+        renderer.render(scene, camera);
+        controls.update( clock.getDelta() );
+    }
+
+    requestAnimationFrame(animate);
+}
+
+
+init();
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
