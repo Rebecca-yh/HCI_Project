@@ -32,7 +32,9 @@
 
 如果方向键不移动，单击鼠标左键后就好了
 
-代码示例HCI_Project/MiniThreejsViewer/addObjects_YH.js
+代码示例HCI_Project/js/addObjects_YH.js
+
+入口文件HCI_Project/Viewer/index.html
 
 音效下载网站https://freesound.org/
 
