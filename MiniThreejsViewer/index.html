@@ -9,10 +9,48 @@ body {
     background-color: #000000;
     overflow: hidden;
 }
+.overlay {
+    position:absolute;
+    display:none;
+    top:0;
+    right:0;
+    bottom:0;
+    left:0;
+    background:rgba(0, 0, 0, 0.8);
+    z-index:9999;
+}
+.close {
+    position:absolute;
+    top:40px;
+    right:5px;
+    width:25px;
+    height:25px;
+    cursor:pointer;
+    color: #fff;
+}
+.popup {
+    display: inline-block;
+}
+
+
+
+
 </style>
+    <script src="../js/jQuery.js"></script>
     <script src="../js/controls/MyControls.js"></script>
+    <script src="addObjects_YH.js"></script>
+    <script src="addObjects_YY.js"></script>
+    <script src="addObjects_LXY.js"></script>
+    <script src="Item.js"></script>
+    <script src="Paint.js"></script>
 </head>
 <body>
+<div class='overlay' id="overlay">
+    <div class='close'>&#10006;</div>
+    <div class='popup' id="popup">
+
+        </div>
+    </div>
 <script>
 
 // global variables
@@ -20,9 +58,17 @@ var camera, scene, renderer,background;
 var controls;
 var objects = [];
 var clock = new THREE.Clock();
-var keyboard;
+var lastTarget;
+var fontLoader;
+var message="";
+var currentItem;
 
 
+
+$('.close').click(function () {
+    $('.overlay').hide();
+    controls.enabled=true;
+});
 
 function findByUserData(node, key, value) {
     if(node.userData && node.userData[key] == value) {
@@ -66,40 +112,46 @@ function init() {
     // Load scene - Begin
     var loader = new THREE.ObjectLoader();
 	// TODO : input yout exported json file
-    var url = './scene.json';
+    var url = './musicShop.json';
     loader.load(url, function(obj) {
         setupScene(obj);
     });
 
 	// Load scene - End
 
+    var geometry = new THREE.BoxGeometry( 10, 3, 1 );
 
 
     //射线
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2();
+    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
     document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 
     document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
     addObjects();
+    fontLoader = new THREE.FontLoader();
+
+    //$('.overlay').show();
 }
+function onDocumentMouseMove( event ) {
+
+    event.preventDefault();
+
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+}
+
 function addObjects()
 {
     // add
 
-    var geometry = new THREE.BoxGeometry( 3, 1, 1 );
-    keyboard = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, opacity: 1 ,transparent: true,wireframe:true} ) );
-    keyboard.position.x = -6.7;
-    keyboard.position.y = 1;
-    keyboard.position.z = -27.5;
-
-
-
-    scene.add( keyboard );
-
-    objects.push( keyboard );
+   addObjects_YH();
+   addObjects_LXY();
+   addObjects_YY()
 }
 
 function onDocumentTouchStart( event ) {
@@ -125,17 +177,38 @@ function onDocumentMouseDown( event ) {
     if (intersects.length <= 0) {
     } else {
 
-        console.log(intersects[0].object.position.x);
-        console.log(intersects[0].object.position.y);
-        console.log(intersects[0].object.position.z);
-        if ( intersects[ 0 ].object.position === keyboard.position ) {
-         window.open( 'https://detail.tmall.com/item.htm?spm=a230r.1.14.107.c7c74884zKZ5k2&id=43855471200&ns=1&abbucket=8' );
-         }
 
-        //var particle = new THREE.Sprite( particleMaterial );
-        //particle.position.copy( intersects[ 0 ].point );
-        //particle.scale.x = particle.scale.y = 16;
-        //scene.add( particle );
+        intersectObjects_YH(intersects[ 0 ].object);
+        intersectObjects_LXY(intersects[ 0 ].object);
+        intersectObjects_YY(intersects[ 0 ].object)
+
+    }
+}
+
+function MouseTarget() {
+    raycaster.setFromCamera( mouse, camera );
+    var intersects = raycaster.intersectObjects(objects);
+
+    if (intersects.length >0)
+     {
+        if(currentItem===undefined||currentItem.box!==intersects[ 0 ].object)
+        {
+            if(currentItem!==undefined)
+            {
+               currentItem.setLabelVisible(false);
+            }
+
+            //console.log('get');
+
+            MouseTarget_YH(intersects[ 0 ].object);
+            MouseTarget_LXY(intersects[ 0 ].object);
+            MouseTarget_YY(intersects[ 0 ].object);
+            if(currentItem!==undefined)
+            {
+                currentItem.setLabelVisible(true);
+            }
+            lastTarget=currentItem;
+        }
 
     }
 }
@@ -145,8 +218,22 @@ function animate() {
 
 
     if(scene && camera) {
+        MouseTarget();
+
+        //限制摄像机位置，如果想要可以移动出房间请注释下两行
+        let oldZ=camera.position.z;
+        let oldX=camera.position.x;
+
         renderer.render(scene, camera);
         controls.update( clock.getDelta() );
+
+        //限制摄像机位置，如果想要可以移动出房间请注释下四行
+        if(camera.position.x>=-2.5||camera.position.x<=-21.5)
+            camera.position.x=oldX;
+        if(camera.position.z<=-27||camera.position.z>=-18.5)
+            camera.position.z=oldZ;
+
+
     }
 
     requestAnimationFrame(animate);

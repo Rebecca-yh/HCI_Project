@@ -186,8 +186,10 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	this.update = function( delta ) {
 
+
 		if ( this.enabled === false ) return;
 
+		var oldY=this.object.position.y;
 		if ( this.heightSpeed ) {
 
 			var y = THREE.Math.clamp( this.object.position.y, this.heightMin, this.heightMax );
@@ -250,6 +252,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 		targetPosition.z = position.z + 100 * Math.sin( this.phi ) * Math.sin( this.theta );
 
 		this.object.lookAt( targetPosition );
+		//this.object.position.y=oldY;
 
 	};
 

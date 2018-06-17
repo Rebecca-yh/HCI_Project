@@ -265,6 +265,7 @@ THREE.MyControls = function ( object, domElement ) {
 		targetPosition.z = position.z + 100 * Math.sin( this.phi ) * Math.sin( this.theta );
 
 		this.object.lookAt( targetPosition );
+		//console.log(this.object.position.x);
 		this.object.position.y = oldY;
 
 	};
