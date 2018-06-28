@@ -26,10 +26,19 @@ function addObjects_YH()
     bass3.setLabel(0,0,0.5,"../images/bassLabel.png");
     bass3.setAudio("../music/bass3.wav");
 
+    counterPersonBox=new Item(1.5,3,1.5,-15,2,-19,0,0,0);
+    counterPersonBox.setLabel(0,0,0.5,"../images/bassLabel.png");
+    counterPersonBox.setAudio("../music/bass2.wav");
+    console.log(counterPersonBox.box.position.x);
+
     //画没有rotation
     paint1=new Paint(1,1,0.2,-7.68,3.25,-28.02,"../images/paint1.png");
     //                                                  ⬇size 用css写，取决于图的大小比例
-    paint1.setLargeImage("../images/paint1_large.png","width:210px; height:300px;")
+    paint1.setLargeImage("../images/paint1_large.png","width:210px; height:300px;");
+
+
+    //counterPersonBox=new Item()
+
 
 
 
@@ -37,6 +46,7 @@ function addObjects_YH()
 
 function  MouseTarget_YH(object) {
 
+    //console.log(object ===  counterPerson.box );
     //                       ⬇box是触发器，下面的语句确定是哪个触发器
     if ( object === electricalPiano.box ) {
         // currentItem是个全局引用
@@ -53,12 +63,22 @@ function  MouseTarget_YH(object) {
     }
     else if ( object === bass3.box )
     {
+        console.log( bass3.box);
         currentItem=bass3;
     }
     else if ( object === paint1.box )
     {
         currentItem=paint1;
     }
+
+    else if (object.position.x ===  counterPerson.box.position.x&&object.position.y ===  counterPerson.box.position.y )
+    {
+
+        currentItem=counterPerson;
+        if(counterPerson!==undefined)
+            stand();
+    }
+
 }
 
 function intersectObjects_YH(object) {
@@ -71,6 +91,14 @@ function intersectObjects_YH(object) {
     {
         window.open( 'https://detail.tmall.com/item.htm?spm=a230r.1.14.76.b1a92653WRj9f7&id=564261153323&ns=1&abbucket=8');
     }
+    else if (object.position.x ===  counterPerson.box.position.x&&object.position.z ===  counterPerson.box.position.z )
+    {
+        console.log("?");
+        if(counterPerson!==undefined)
+            welcome();
+        waiting()
+    }
+
 
     if ( object === paint1.box ) {
        paint1.show();

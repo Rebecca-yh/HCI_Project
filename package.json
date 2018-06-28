@@ -1,0 +1,25 @@
+{
+  "name": "hci_project",
+  "version": "1.0.0",
+  "description": "射线检测到，弹出标签（播放音效）☑️",
+  "main": "test.js",
+  "dependencies": {
+    "artyom.js": "^1.0.6"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rebecca-yh/HCI_Project.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Rebecca-yh/HCI_Project/issues"
+  },
+  "homepage": "https://github.com/Rebecca-yh/HCI_Project#readme"
+}

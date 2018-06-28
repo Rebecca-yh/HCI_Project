@@ -1,7 +1,7 @@
 <html>
 <head>
 <title>Mini Three.js Scene Viewer</title>
-<script src="../build/three.js"></script>
+
 
     <style>
 body {
@@ -36,13 +36,25 @@ body {
 
 
 </style>
-    <script src="../js/jQuery.js"></script>
+    <script src="../build/three.js"></script>
+    <script src="../js/loaders/FBXLoader.js"></script>
+    <script src="../js/libs/inflate.min.js"></script>
+    <script src="../js/libs/stats.min.js"></script>
+    <script src="../js/libs/jQuery.js"></script>
     <script src="../js/controls/MyControls.js"></script>
+    <script src="../build/artyom.window.js"></script>
+
     <script src="../js/addObjects_YH.js"></script>
     <script src="../js/addObjects_YY.js"></script>
     <script src="../js/addObjects_LXY.js"></script>
+    <script src="../js/interactive_YH.js"></script>
+    <script src="../js/interactive_YY.js"></script>
+    <script src="../js/interactive_LXY.js"></script>
+
     <script src="../js/Item.js"></script>
     <script src="../js/Paint.js"></script>
+    <script src="../js/actor&action.js"></script>
+    <script src="../js/speech.js"></script>
 </head>
 <body>
 <div class='overlay' id="overlay">
@@ -60,9 +72,9 @@ var objects = [];
 var clock = new THREE.Clock();
 var lastTarget;
 var fontLoader;
-var message="";
 var currentItem;
-
+var counterPerson;
+var lastFind=undefined;
 
 
 $('.close').click(function () {
@@ -100,9 +112,13 @@ function setupScene(result) {
 }
 
 
-function init() {	
+function init() {
+    initArtyom()
     // three.js renderer
 	var container = document.body;
+    stats = new Stats();
+    container.appendChild( stats.dom );
+
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setClearColor( 0x333333 );
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -132,10 +148,16 @@ function init() {
     document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
     addObjects();
-    fontLoader = new THREE.FontLoader();
+    //fontLoader = new THREE.FontLoader();
 
-    //$('.overlay').show();
+    actionInit();
+
+
+
 }
+
+
+
 function onDocumentMouseMove( event ) {
 
     event.preventDefault();
@@ -191,23 +213,25 @@ function MouseTarget() {
 
     if (intersects.length >0)
      {
-        if(currentItem===undefined||currentItem.box!==intersects[ 0 ].object)
+        if(currentItem===undefined||lastTarget!==intersects[ 0 ].object)
         {
             if(currentItem!==undefined)
             {
-               currentItem.setLabelVisible(false);
+                if(currentItem!==counterPerson)
+                    currentItem.setLabelVisible(false);
             }
-
-            //console.log('get');
+            console.log(intersects[ 0 ].object);
 
             MouseTarget_YH(intersects[ 0 ].object);
             MouseTarget_LXY(intersects[ 0 ].object);
             MouseTarget_YY(intersects[ 0 ].object);
             if(currentItem!==undefined)
             {
-                currentItem.setLabelVisible(true);
+                if(currentItem!==counterPerson)
+                    currentItem.setLabelVisible(true);
+
             }
-            lastTarget=currentItem;
+            lastTarget=intersects[ 0 ].object;
         }
 
     }
@@ -215,23 +239,26 @@ function MouseTarget() {
 
 
 function animate() {
-
-
+    stats.update();
+     var current=clock.getDelta();
+     if(initAct)
+         actionUpdate(current);
     if(scene && camera) {
         MouseTarget();
 
-        //限制摄像机位置，如果想要可以移动出房间请注释下两行
-        let oldZ=camera.position.z;
-        let oldX=camera.position.x;
+        //console.log(camera.position.x);
+        //限制摄像机位置，如果想要可以移动出房间请注释下两
+        //let oldZ=camera.position.z;
+        //let oldX=camera.position.x;
 
         renderer.render(scene, camera);
-        controls.update( clock.getDelta() );
+        controls.update(current );
 
         //限制摄像机位置，如果想要可以移动出房间请注释下四行
-        if(camera.position.x>=-2.5||camera.position.x<=-21.5)
-            camera.position.x=oldX;
-        if(camera.position.z<=-27||camera.position.z>=-18.5)
-            camera.position.z=oldZ;
+        //if(camera.position.x>=-2.5||camera.position.x<=-21.5)
+            //camera.position.x=oldX;
+        //if(camera.position.z<=-27||camera.position.z>=-18.5)
+            //camera.position.z=oldZ;
 
 
     }

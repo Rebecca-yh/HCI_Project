@@ -2,7 +2,7 @@ class Item
 {
     constructor(sizeX,sizeY,sizeZ,positionX,positionY,positionZ,rotationX,rotationY,rotationZ){
         var geometry = new THREE.BoxGeometry( sizeX,sizeY,sizeZ);
-        this.box = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xffffff, opacity: 1 ,transparent: true,wireframe:true} ) );
+        this.box = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xffffff, opacity: 0 ,transparent: true,wireframe:true} ) );
         this.box.position.x = positionX;
         this.box.position.y = positionY;
         this.box.position.z = positionZ;
@@ -12,6 +12,10 @@ class Item
 
         scene.add( this.box );
         objects.push( this.box );
+        this.Arrow = new THREE.ArrowHelper( new THREE.Vector3( 2,2,2), new THREE.Vector3( 1, 1, 1 ), -2 ,0x00ffff);
+        this.Arrow.position.set(positionX,positionY+3,positionZ );
+        this.Arrow.visible=false;
+        scene.add( this.Arrow );
 
     }
     setAudio(filename)
@@ -55,6 +59,15 @@ class Item
             else
                 this.audio.pause();
         }
+    }
+    find()
+    {
+        if (lastFind!==undefined)
+        {
+            lastFind.Arrow.visible=false
+        }
+        this.Arrow.visible=true;
+        lastFind=this;
     }
 
 }
